@@ -12,6 +12,7 @@ int main()
 	xx::UV_v uv(mp);
 	auto c1 = mp.CreateMPtr<MyClient>(uv, "a", "a");	// 自持有, 自杀
 	auto c2 = mp.CreateMPtr<MyClient>(uv, "b", "b");	// 自持有, 自杀
+	auto c3 = mp.CreateMPtr<MyClient>(uv, "c", "c");	// 自持有, 自杀
 	uv->Run();
 	std::cout << "main: press any key to continue ..." << std::endl;
 	std::cin.get();

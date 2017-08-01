@@ -107,6 +107,9 @@ public class Peer : xx.UVServerPeerWrapperEx
                                     case "b":
                                         acc = new DB.Account { Id = 2, Password = "b" };
                                         break;
+                                    case "c":
+                                        acc = new DB.Account { Id = 3, Password = "c" };
+                                        break;
                                 }
                             }
                             /***********************************************************/

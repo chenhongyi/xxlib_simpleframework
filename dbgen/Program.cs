@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using System.IO;
 using System.Windows.Forms;
+using System;
 
 // todo: 针对 "受影响行数" 之类的查询执行后附加结果, 考虑存放在 函数接口对应的类中
 
@@ -9,6 +10,7 @@ public static class Program
     public const string templatePrefix = "dbgen_template_";
     public const string outputPath = "../../../../db";
 
+    [STAThread]
     static void Main(string[] args)
     {
         // 扫所有添加过引用的, 名字前缀为 templatePrefix 的 dll, 执行相应的生成
