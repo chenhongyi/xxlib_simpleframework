@@ -67,8 +67,8 @@ namespace PKG
             bb.readLengthLimit = 0;
             bb.Read(ref this.name);
         }
-
     }
+
     public partial class Property_long : Property
     {
         public long value;
