@@ -58,12 +58,12 @@ namespace DB
             sb.Append("(");
             if (!ignoreReadOnly)
             {
-            sb.Append(o.id);
+            sb.Append(o.Id);
             sb.Append(", ");
             }
-            sb.MsSqlAppend(o.username);
+            sb.MsSqlAppend(o.Username);
             sb.Append(", ");
-            sb.MsSqlAppend(o.password);
+            sb.MsSqlAppend(o.Password);
             sb.Append(", ");
             sb.Length -= 2;
             sb.Append(")");

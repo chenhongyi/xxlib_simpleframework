@@ -102,10 +102,10 @@ public class Peer : xx.UVServerPeerWrapperEx
                                 switch (o.username)
                                 {
                                     case "a":
-                                        acc = new DB.Account { id = 1, password = "a" };
+                                        acc = new DB.Account { Id = 1, Password = "a" };
                                         break;
                                     case "b":
-                                        acc = new DB.Account { id = 2, password = "b" };
+                                        acc = new DB.Account { Id = 2, Password = "b" };
                                         break;
                                 }
                             }
@@ -132,9 +132,9 @@ public class Peer : xx.UVServerPeerWrapperEx
                                     if (acc != null)
                                     {
                                         // 如果密码一致: 顶掉 或创建 user
-                                        if (acc.password == o.password)
+                                        if (acc.Password == o.password)
                                         {
-                                            var idx = users.Find(acc.id);
+                                            var idx = users.Find(acc.Id);
                                             // 如果没找到: 创建并广播
                                             if (idx == -1)
                                             {
@@ -142,7 +142,7 @@ public class Peer : xx.UVServerPeerWrapperEx
                                                 // 如果要进一步纠结, 可以调用 Listener 上的 Send( peers, pkg ) 函数, 引用计数, 0 复制( 还没做 ))
                                                 var pushMsg = GetPackagesData(new PKG.Server_Client.PushJoin
                                                 {
-                                                    id = acc.id
+                                                    id = acc.Id
                                                 });
 
                                                 // 广播给其他人
@@ -158,13 +158,13 @@ public class Peer : xx.UVServerPeerWrapperEx
                                                 // 创建 user info 
                                                 user = new PKG.UserInfo
                                                 {
-                                                    id = acc.id,
+                                                    id = acc.Id,
                                                     owner = owner,
                                                     peer = this,
                                                     props = null
                                                 };
                                                 // 放进字典, 将所在字典 index 存起来
-                                                user.owner_users_index = users.Add(acc.id, user).index;
+                                                user.owner_users_index = users.Add(acc.Id, user).index;
 
 
                                                 // 向当前客户端发送 join 成功, 并附带自己和所有人的信息

@@ -9,14 +9,14 @@ namespace DB
         /// <summary>
         /// 自增主键
         /// </summary>
-        public long id;
+        public long Id { get; set; }
         /// <summary>
         /// 用户名( 唯一索引 )
         /// </summary>
-        public string username = "";
+        public string Username { get; set; } = string.Empty;
         /// <summary>
         /// 密码( 无索引 )
         /// </summary>
-        public string password = "";
+        public string Password { get; set; } = string.Empty;
     }
 }
