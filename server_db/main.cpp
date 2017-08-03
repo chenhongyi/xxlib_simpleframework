@@ -50,13 +50,14 @@ struct TaskManager : xx::MPObject
 	volatile bool stoped = false;
 	void ThreadProcess();
 };
+using TaskManager_v = xx::Dock<TaskManager>;
 
 struct Service : xx::MPObject
 {
 	xx::UV_v uv;
 	xx::SQLite_v sqldb;
 	Listener* listener = nullptr;
-	xx::MemHeaderBox<TaskManager> tm;
+	TaskManager_v tm;
 
 	Service();
 	int Run();
@@ -290,7 +291,6 @@ create table [account]
 		xx::SQLiteQuery_p query_AddAccount;
 		void AddAccount(DB::Account const* const& a)
 		{
-			assert(a);
 			hasError = true;
 			auto& q = query_AddAccount;
 			if (!q)
@@ -327,7 +327,6 @@ values (?, ?)
 		Account_p GetAccountByUsername(char const* const& username)
 		{
 			hasError = true;
-			Account_p rtv;
 			auto& q = query_GetAccountByUsername;
 			if (!q)
 			{
@@ -337,14 +336,15 @@ select [id], [username], [password]
  where [username] = ?
 )=-=");
 			}
+			Account_p rtv;
 			if (!q) return rtv;
 			if (q->SetParameters(username)) return rtv;
 			if (!q->Execute([&](xx::SQLiteReader& sr)
 			{
 				rtv.Create(mp);
 				rtv->id = sr.ReadInt64(0);
-				rtv->username.Create(mp)->Assign(sr.ReadString(1));	// 如果会创建默认实例
-				rtv->password.Create(mp, sr.ReadString(2));			// 如果不, 值一定是空, 方能确保 Create 执行
+				rtv->username.Create(mp, sr.ReadString(1));	// 如果不创建默认实例
+				*rtv->password.Create(mp) = sr.ReadString(2);//*rtv->password = sr.ReadString(2); // 如果创建默认实例的 string 可以这样,  也可直接 Assign. BBuffer 同理
 			})) return rtv;
 			hasError = false;
 			return rtv;
@@ -354,7 +354,6 @@ select [id], [username], [password]
 		xx::List_p<Account_p> GetAccountsByUsernames(xx::List_p<xx::String_p> const& usernames)
 		{
 			hasError = true;
-			xx::List_p<Account_p> rtv;
 			auto& q = query_GetAccountsByUsernames;
 			{
 				s->Clear();
@@ -365,14 +364,15 @@ select [id], [username], [password]
 				s->SQLAppend(usernames);
 				q = sqlite->CreateQuery(s->C_str(), s->dataLen);
 			}
+			xx::List_p<Account_p> rtv;
 			if (!q) return rtv;
-			mp.CreateTo(rtv);
+			rtv.Create(mp);
 			if (!q->Execute([&](xx::SQLiteReader& sr)
 			{
 				auto& r = rtv->EmplaceMP();
 				r->id = sr.ReadInt64(0);
-				if (sr.IsNull(1)) r->username = nullptr; else r->username.Create(mp)->Assign(sr.ReadString(1));// 如果会创建默认实例
-				if (sr.IsNull(2)) r->password = nullptr; else r->password.Create(mp, sr.ReadString(2));
+				if (sr.IsNull(1)) r->username = nullptr; else *r->username.Create(mp) = sr.ReadString(1);	// 如果创建默认实例就要这样设 null, 后面 Create(mp) 不要
+				if (!sr.IsNull(2)) *r->password.Create(mp, sr.ReadString(2));
 			}))
 			{
 				rtv = nullptr;
@@ -384,15 +384,10 @@ select [id], [username], [password]
 	};
 }
 
-
 int main()
 {
 	PKG::AllTypesRegister();
 	xx::MemPool mp;
-
-	//xx::MemHeaderBox<Service> s(mp);
-	//s->Run();
-
 	xx::SQLite_v sql(mp, "data.db");
 	DB::SQLiteFuncs fs(sql);
 
@@ -409,10 +404,12 @@ int main()
 
 		DB::Account_p a(mp);
 
-		a->username.Create(mp)->Assign("a");
-		a->password.Create(mp)->Assign("1");
+		*a->username.Create(mp) = "a";
+		*a->password.Create(mp) = "1";
 		fs.AddAccount(a);
 		assert(!fs.hasError);
+
+		auto b = std::move(a);
 
 		fs.AddAccount2("b", "2");
 		assert(!fs.hasError);
@@ -435,10 +432,10 @@ int main()
 		}
 	}
 	{
-		xx::List_p<xx::String_p> usernames(mp);
-		usernames->EmplaceMP("a");
-		usernames->EmplaceMP("b");
-		auto as = fs.GetAccountsByUsernames(usernames);
+		xx::List_p<xx::String_p> ss(mp);
+		ss->EmplaceMP("a");
+		ss->EmplaceMP("b");
+		auto as = fs.GetAccountsByUsernames(ss);
 		for (auto& a : *as)
 		{
 			mp.Cout(a, "\n");
@@ -450,6 +447,8 @@ LabEnd:
 	return 0;
 }
 
+//xx::Dock<Service> s(mp);
+//s->Run();
 
 
 //struct Foo : xx::MPObject
@@ -464,7 +463,7 @@ LabEnd:
 //	}
 //};
 //using Foo_p = xx::Ptr<Foo>;
-//using Foo_v = xx::MemHeaderBox<Foo>;
+//using Foo_v = xx::Dock<Foo>;
 //namespace xx
 //{
 //	template<>

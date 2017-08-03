@@ -36,9 +36,9 @@ namespace xx
 		static int Read(BBuffer* bb, T& v);
 	};
 
-	// MemHeaderBox
+	// Dock
 	template<typename T>
-	struct BBufferRWSwitcher<T, std::enable_if_t< IsMemHeaderBox_v<T> >>
+	struct BBufferRWSwitcher<T, std::enable_if_t< IsDock_v<T> >>
 	{
 		static void Write(BBuffer* bb, T const& v);
 		static int Read(BBuffer* bb, T& v);
@@ -249,12 +249,12 @@ namespace xx
 
 
 		template<typename T>
-		void WriteBox(MemHeaderBox<T> const& v)
+		void WriteBox(Dock<T> const& v)
 		{
 			v->ToBBuffer(*this);
 		}
 		template<typename T>
-		int ReadBox(MemHeaderBox<T> &v)
+		int ReadBox(Dock<T> &v)
 		{
 			return v->FromBBuffer(*this);
 		}
@@ -472,15 +472,15 @@ namespace xx
 		return bb->ReadPtr(v);
 	}
 
-	// MemHeaderBox
+	// Dock
 
 	template<typename T>
-	void BBufferRWSwitcher<T, std::enable_if_t< IsMemHeaderBox_v<T> >>::Write(BBuffer* bb, T const& v)
+	void BBufferRWSwitcher<T, std::enable_if_t< IsDock_v<T> >>::Write(BBuffer* bb, T const& v)
 	{
 		bb->WriteBox(v);
 	}
 	template<typename T>
-	int BBufferRWSwitcher<T, std::enable_if_t< IsMemHeaderBox_v<T> >>::Read(BBuffer* bb, T& v)
+	int BBufferRWSwitcher<T, std::enable_if_t< IsDock_v<T> >>::Read(BBuffer* bb, T& v)
 	{
 		return bb->ReadBox(v);
 	}
@@ -489,7 +489,7 @@ namespace xx
 	// 实现值类型使用类型声明
 	/*************************************************************************/
 
-	using BBuffer_v = MemHeaderBox<BBuffer>;
+	using BBuffer_v = Dock<BBuffer>;
 	using BBuffer_p = Ptr<BBuffer>;
 	template<>
 	struct MemmoveSupport<BBuffer_v>
@@ -618,7 +618,7 @@ namespace xx
 		}
 	};
 
-	// 适配非 MPObject* / MPtr ( 只能 foreach 一个个搞, 含 MemHeaderBox )
+	// 适配非 MPObject* / MPtr ( 只能 foreach 一个个搞, 含 Dock )
 	template<typename T, uint32_t reservedHeaderLen>
 	struct ListBBSwitcher<T, reservedHeaderLen, std::enable_if_t< !(sizeof(T) == 1 || std::is_same<float, typename std::decay<T>::type>::value) && !(IsMPtr_v<T> || (std::is_pointer<T>::value && IsMPObject_v<T>)) >>
 	{

@@ -17,7 +17,7 @@ namespace xx
 	struct Queue : public MPObject
 	{
 		typedef T ChildType;
-		static const bool memmoveAble = std::is_pod<T>::value || IsMemHeaderBox_v<T>;
+		static const bool memmoveAble = std::is_pod<T>::value || IsDock_v<T>;
 
 		T*			buf;
 		uint32_t    bufLen;
@@ -71,7 +71,7 @@ namespace xx
 	/*************************************************************************/
 
 	template<typename T>
-	using Queue_v = MemHeaderBox<Queue<T>>;
+	using Queue_v = Dock<Queue<T>>;
 
 	template<typename T>
 	using Queue_p = Ptr<Queue<T>>;

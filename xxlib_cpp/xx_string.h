@@ -355,9 +355,9 @@ namespace xx
 			str.AppendPtr(v ? v.pointer : nullptr);
 		}
 
-		// MemHeaderBox<T>
+		// Dock<T>
 		template<typename T>
-		static void WriteTo(String& str, std::enable_if_t< IsMemHeaderBox_v<T>, T> const& v)
+		static void WriteTo(String& str, std::enable_if_t< IsDock_v<T>, T> const& v)
 		{
 			v->ToString(str);
 		}
@@ -383,7 +383,7 @@ namespace xx
 	// 实现值类型使用类型声明
 	/*************************************************************************/
 
-	using String_v = MemHeaderBox<String>;
+	using String_v = Dock<String>;
 	using String_p = Ptr<String>;
 
 	template<>
@@ -499,7 +499,7 @@ namespace xx
 	{
 		return GetHashCode(in.Ensure());
 	}
-	inline uint32_t GetHashCode(Ptr<String> const &in)
+	inline uint32_t GetHashCode(String_p const &in)
 	{
 		return GetHashCode(*in);
 	}
@@ -526,7 +526,7 @@ namespace xx
 	{
 		return EqualsTo(a.Ensure(), b.Ensure());
 	}
-	inline bool EqualsTo(Ptr<String> const& a, Ptr<String> const& b)
+	inline bool EqualsTo(String_p const& a, String_p const& b)
 	{
 		return EqualsTo(*a, *b);
 	}
